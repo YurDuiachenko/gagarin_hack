@@ -1,0 +1,22 @@
+name: Build Project
+
+on: [push]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v2
+    
+    - name: Set up CMake
+      uses: martinj/ninja-cmake@v1
+      with:
+        cmake-version: '3.16'
+    
+    - name: Build Project
+      run: |
+        mkdir build
+        cd build
+        cmake ..
+        make
