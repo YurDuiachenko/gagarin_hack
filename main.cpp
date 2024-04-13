@@ -25,7 +25,7 @@ int main(int argc, char** argv)
     return -1;
   }
 
-  AV_Context_Sosite_Chlen hui;
+  MP4_Sosite_Chlen hui;
   if (load_mp4(hui, argv[1]) != 0)
     return -1;
 
@@ -53,17 +53,11 @@ int main(int argc, char** argv)
   ImGui_ImplSDL2_InitForSDLRenderer(window, renderer);
   ImGui_ImplSDLRenderer2_Init(renderer);
 
-  int   bar_data[11] = { 2, 2, 6, 4, 5, 6, 2, 8, 9, 10, 11 };
-  float x_data[1000];
-  float y_data[1000];
-  for (int i = 0; i < 1000; i++) {
-    float x = i*0.01;
-    x_data[i] = x;
-    y_data[i] = sin(x) + 0.5 * cos(2 * x) + 0.1 * sin(4*x);
-  }
+  std::vector<double> timestamps;
+  std::vector<double> time_series;
 
   bool show_demo_window = true;
-  bool show_another_window = false;
+  bool process_frames = true;
   ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 
   // Main loop
@@ -89,56 +83,39 @@ int main(int argc, char** argv)
 		case SDLK_ESCAPE:
 		  done = true;
 		  break;
+		case SDLK_SPACE:
+		  process_frames = !process_frames;
+		  break;
 		}
 	      break;
 	    }
 	}
 
+      if (process_frames) {
+	auto frame = read_frame(hui);
+	timestamps.push_back(frame.timestamp);
+	time_series.push_back(frame.feature1);
+      }
+
       ImGui_ImplSDLRenderer2_NewFrame();
       ImGui_ImplSDL2_NewFrame();
       ImGui::NewFrame();
 
-      if (show_demo_window)
+      if (show_demo_window) {
 	ImGui::ShowDemoWindow(&show_demo_window);
-
-      if (0) {
-	static float f = 0.0f;
-	static int counter = 0;
-
-	ImGui::Begin("Hello, world!");
-
-	ImGui::Text("This is some useful text.");               // Display some text (you can use a format strings too)
-	ImGui::Checkbox("Demo Window", &show_demo_window);      // Edit bools storing our window open/close state
-	ImGui::Checkbox("Another Window", &show_another_window);
-
-	ImGui::SliderFloat("float", &f, 0.0f, 1.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
-	ImGui::ColorEdit3("clear color", (float*)&clear_color); // Edit 3 floats representing a color
-
-	if (ImGui::Button("Button"))                            // Buttons return true when clicked (most widgets return true when edited/activated)
-	  counter++;
-	ImGui::SameLine();
-	ImGui::Text("counter = %d", counter);
-
-	ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / io.Framerate, io.Framerate);
-	ImGui::End();
+	ImPlot::ShowDemoWindow();
       }
 
-      ImGui::Begin("My Window");
-      if (ImPlot::BeginPlot("My Plot")) {
-	ImPlot::PlotBars("My Bar Plot", bar_data, 11);
-	ImPlot::PlotLine("My Line Plot", x_data, y_data, 1000);
+      ImGui::Begin("oh sexy boy");
+      ImGui::Checkbox("Processing frames enabled", &process_frames);
+      // ImPlot::SetNextAxisLimits(ImAxis_X1, 0.0, timestamps.back());
+      ImPlot::SetNextAxisLimits(ImAxis_Y1, 0.0, 1.0);
+      if (ImPlot::BeginPlot("tyagi tyagi tyagi kefteme")) {
+	ImPlot::SetupAxes("time","frame size",0,ImPlotAxisFlags_NoInitialFit);
+	ImPlot::PlotLine("Frame size", timestamps.data(), time_series.data(), timestamps.size());
 	ImPlot::EndPlot();
       }
       ImGui::End();
-
-      // 3. Show another simple window.
-      if (show_another_window) {
-	  ImGui::Begin("Another Window", &show_another_window);   // Pass a pointer to our bool variable (the window will have a closing button that will clear the bool when clicked)
-	  ImGui::Text("Hello from another window!");
-	  if (ImGui::Button("Close Me"))
-	    show_another_window = false;
-	  ImGui::End();
-	}
 
       ImGui::Render();
       SDL_RenderSetScale(renderer, io.DisplayFramebufferScale.x, io.DisplayFramebufferScale.y);

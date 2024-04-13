@@ -10,11 +10,20 @@ struct MP4_Sosite_Chlen {
   AVPacket *pPacket = NULL;
   int frame_counter = 0;
   double time_base;
+
+  int width() const {
+    return pCodecParameters->width;
+  }
+
+  int height() const {
+    return pCodecParameters->height;
+  }
 };
 
 struct Frame_Info {
   void* pData;
-  uint32_t size;
+  double timestamp;
+  double feature1;
   char type;
 };
 
@@ -117,10 +126,14 @@ Frame_Info read_frame(MP4_Sosite_Chlen& hui)
   // TODO: check error
   av_read_frame(hui.pFormatContext, hui.pPacket);
 
+  double n = hui.width()*hui.height();
+
   Frame_Info pizda;
   pizda.pData = hui.pPacket->data;
-  pizda.size = hui.pPacket->size;
-  pizda.type = (pPacket->flags & AV_PKT_FLAG_KEY) ? 'I' : 'P';
+  pizda.feature1 = hui.pPacket->size/n;
+  pizda.type = (hui.pPacket->flags & AV_PKT_FLAG_KEY) ? 'I' : 'P';
+  pizda.timestamp = hui.pPacket->pts/hui.time_base;
 
+  hui.frame_counter++;
   return pizda;
 }
