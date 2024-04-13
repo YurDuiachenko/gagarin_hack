@@ -137,3 +137,18 @@ Frame_Info read_frame(MP4_Sosite_Chlen& hui)
   hui.frame_counter++;
   return pizda;
 }
+
+struct Ebany_Time_series {
+  const char* name;
+  std::vector<double> timestamps;
+  std::vector<double> values;
+
+  void add(double t, double y) {
+    timestamps.push_back(t);
+    values.push_back(y);
+  }
+
+  void plot() {
+    ImPlot::PlotLine(name, timestamps.data(), values.data(), timestamps.size());
+  }
+};

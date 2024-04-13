@@ -53,8 +53,8 @@ int main(int argc, char** argv)
   ImGui_ImplSDL2_InitForSDLRenderer(window, renderer);
   ImGui_ImplSDLRenderer2_Init(renderer);
 
-  std::vector<double> timestamps;
-  std::vector<double> time_series;
+  Ebany_Time_series P_packets = {"P-packet size"};
+  Ebany_Time_series I_packets = {"I-packet size"};
 
   bool show_demo_window = true;
   bool process_frames = true;
@@ -93,8 +93,10 @@ int main(int argc, char** argv)
 
       if (process_frames) {
 	auto frame = read_frame(hui);
-	timestamps.push_back(frame.timestamp);
-	time_series.push_back(frame.feature1);
+	if (frame.type == 'I')
+	  I_packets.add(frame.timestamp, frame.feature1);
+	else
+	  P_packets.add(frame.timestamp, frame.feature1);
       }
 
       ImGui_ImplSDLRenderer2_NewFrame();
@@ -112,7 +114,8 @@ int main(int argc, char** argv)
       // ImPlot::SetNextAxisLimits(ImAxis_Y1, 0.0, 1.0);
       if (ImPlot::BeginPlot("tyagi tyagi tyagi kefteme")) {
 	ImPlot::SetupAxes("time","frame size",ImPlotAxisFlags_AutoFit,ImPlotAxisFlags_AutoFit);
-	ImPlot::PlotLine("Frame size", timestamps.data(), time_series.data(), timestamps.size());
+	P_packets.plot();
+	I_packets.plot();
 	ImPlot::EndPlot();
       }
       ImGui::End();
