@@ -18,6 +18,12 @@ struct MP4_Sosite_Chlen {
   int height() const {
     return pCodecParameters->height;
   }
+
+  ~MP4_Sosite_Chlen() {
+    avformat_close_input(&pFormatContext);
+    av_packet_free(&pPacket);
+    avcodec_free_context(&pCodecContext);
+  }
 };
 
 struct Frame_Info {
