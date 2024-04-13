@@ -110,6 +110,22 @@ int main(int argc, char** argv)
 
       ImGui::Begin("oh sexy boy");
       ImGui::Checkbox("Processing frames enabled", &process_frames);
+      char csv_path[512];
+      ImGui::InputTextWithHint("CSV path", "write CSV path you donut", csv_path, sizeof(csv_path));
+      if (ImGui::Button("Save to csv")) {
+	// TODO
+	FILE* file = fopen(csv_path, "w");
+	if (!file) {
+	  printf("Failed to open file %s\n", csv_path);
+	} else {
+	  fprintf(file, "time,y\n");
+	  for (int i = 0; i < P_packets.timestamps.size(); i++) {
+	    fprintf(file, "%.3f,%.3f\n", P_packets.timestamps[i], P_packets.values[i]);
+	  }
+	  fclose(file);
+	  printf("Saving to csv... %s\n", csv_path);
+	}
+      }
       // ImPlot::SetNextAxisLimits(ImAxis_X1, 0.0, timestamps.back());
       // ImPlot::SetNextAxisLimits(ImAxis_Y1, 0.0, 1.0);
       if (ImPlot::BeginPlot("tyagi tyagi tyagi kefteme")) {
