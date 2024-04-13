@@ -109,9 +109,9 @@ int main(int argc, char** argv)
       ImGui::Begin("oh sexy boy");
       ImGui::Checkbox("Processing frames enabled", &process_frames);
       // ImPlot::SetNextAxisLimits(ImAxis_X1, 0.0, timestamps.back());
-      ImPlot::SetNextAxisLimits(ImAxis_Y1, 0.0, 1.0);
+      // ImPlot::SetNextAxisLimits(ImAxis_Y1, 0.0, 1.0);
       if (ImPlot::BeginPlot("tyagi tyagi tyagi kefteme")) {
-	ImPlot::SetupAxes("time","frame size",0,ImPlotAxisFlags_NoInitialFit);
+	ImPlot::SetupAxes("time","frame size",ImPlotAxisFlags_AutoFit,ImPlotAxisFlags_AutoFit);
 	ImPlot::PlotLine("Frame size", timestamps.data(), time_series.data(), timestamps.size());
 	ImPlot::EndPlot();
       }
